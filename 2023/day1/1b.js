@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs'
+import { readInput } from '../inputUtils.js'
 
 // replace strings with digitFirstChar + digit + digitLastChar to avoid overlapping char problems
 const numberMap = { 
@@ -12,10 +12,6 @@ const numberMap = {
     'seven': 's7n', 
     'eight': 'e8t', 
     'nine': 'n9e'
-}
-
-export function readInput() {
-    return readFileSync('../data/day1.txt').toString().trim()
 }
 
 export function solve(input) {
@@ -32,3 +28,5 @@ export function solve(input) {
         return parseInt('' + nums[0] + nums.at(-1))
     }).reduce((a,b) => a + b, 0)
 }
+
+console.log(solve(readInput()))

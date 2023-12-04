@@ -1,10 +1,6 @@
-import { readFileSync } from 'fs'
+import { readInput } from '../inputUtils.js'
 
 const BALL_COLORS = ['red', 'green', 'blue']
-
-export function readInput() {
-    return readFileSync('../data/day2.txt').toString().trim()
-}
 
 export function solve(input) {
     const lines = input.split('\n')
@@ -26,3 +22,5 @@ export function solve(input) {
         return maxNumberOfColors.reduce((a,b) => a * b) // return power of all max values
     }).reduce((a,b) => a + b, 0)
 }
+
+console.log(solve(readInput()))

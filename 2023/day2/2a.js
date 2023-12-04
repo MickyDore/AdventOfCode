@@ -1,13 +1,9 @@
-import { readFileSync } from 'fs'
+import { readInput } from '../inputUtils.js'
 
 const MAX_BALL_QUANTITIES = {
     red: 12,
     green: 13,
     blue: 14
-}
-
-export function readInput() {
-    return readFileSync('../data/day2.txt').toString().trim()
 }
 
 export function solve(input) {
@@ -34,3 +30,5 @@ export function solve(input) {
         return counter
     }).reduce((a,b) => a + b, 0)
 }
+
+console.log(solve(readInput()))

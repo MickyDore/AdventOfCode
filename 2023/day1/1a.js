@@ -1,8 +1,4 @@
-import { readFileSync } from 'fs'
-
-export function readInput() {
-    return readFileSync('../data/day1.txt').toString().trim()
-}
+import { readInput } from '../inputUtils.js'
 
 export function solve(input) {
     const lines = input.split('\n')
@@ -12,3 +8,5 @@ export function solve(input) {
         return parseInt('' + nums[0] + nums.at(-1))
     }).reduce((a,b) => a + b, 0)
 }
+
+console.log(solve(readInput()))
