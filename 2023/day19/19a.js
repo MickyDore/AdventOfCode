@@ -77,7 +77,6 @@ export function solve(input) {
         }
 
         total += nextBlock === 'A' ? Object.values(obj).reduce((a,b) => a + b) : 0
-
     }
 
     return total

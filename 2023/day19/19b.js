@@ -1,26 +1,22 @@
 import { readInput } from '../inputUtils.js'
 
 const workflows = {}
-const parts = []
 
-function splitParts(parts) {
-    let stripped = parts.substr(1, parts.length-2)
-    let split = stripped.split(',')
-    let obj = {}
+function calculateCombinations(quantities) {
+    let sum = 1
 
-    for (let i = 0; i < split.length; i++) {
-        const [key, value] = split[i].split('=')
-        obj[key] = parseInt(value)
+    for (const [key, value] of Object.entries(quantities)) {
+        sum *= value.max - value.min + 1
     }
 
-    return obj
+    return sum
 }
 
 export function solve(input) {
-    let total = 0
     const split = input.split('\n\n')
     const workflowsBlock = split[0].split('\n')
 
+    // parse all workflows and put into a map to make life easier
     for (let i = 0; i < workflowsBlock.length; i++) {
         const bracket = workflowsBlock[i].indexOf('{')
         workflows[workflowsBlock[i].substr(0,bracket)] = workflowsBlock[i].substr(bracket+1, workflowsBlock[i].length-bracket-2)
@@ -29,6 +25,7 @@ export function solve(input) {
     const min = 1
     const max = 4000
 
+    // Track the workflow we're in and the ratings left
     const firstBlock = { 
         code: 'in', 
         quantities: {
@@ -39,71 +36,61 @@ export function solve(input) {
         } 
     }
 
+    let total = 0
     const blocksToCheck = [firstBlock]
 
     workflowLoop: while (blocksToCheck.length) {
-        console.log(JSON.stringify(blocksToCheck) + '\n')
         let nextBlock = blocksToCheck.pop()
-        const obj = nextBlock.quantities
+        const quantities = nextBlock.quantities
 
         if (nextBlock.code === 'R') continue
         if (nextBlock.code === 'A') {
-            let sum = 1
-
-            for (const [key, value] of Object.entries(nextBlock.quantities)) {
-                sum *= value.max - value.min + 1
-            }
-
-            total += sum
+            total += calculateCombinations(quantities)
             continue
         }
 
         let flow = workflows[nextBlock.code]
 
-        // console.log(nextBlock.code, obj, flow)
-
+        // while there is still an expression left
         while (flow.indexOf(',')) {
             let commaIndexes = [...flow.matchAll(/,/g)].map(match => match.index)
 
             // if this is the last expression
             let expression = commaIndexes.length === 1 ? flow : flow.substr(0, flow.indexOf(','))
 
-            let item = expression.charAt(0)
-            let operator = expression.charAt(1)
-            let value = parseInt(expression.substr(2, expression.indexOf(':') - 2))
-            let endpoints = expression.split(':')[1].split(',')
+            let item = expression.charAt(0) // rating symbol (x, m, a, s)
+            let operator = expression.charAt(1) // operator (>, <)
+            let value = parseInt(expression.substr(2, expression.indexOf(':') - 2)) // rating value (1 - 4000)
+            let endpoints = expression.split(':')[1].split(',') // possible routes (1 or 2)
 
             if (operator === '>') {
-                if (obj[item].max > value) {
-                    // nextBlock = endpoints[0]
-                    // nextBlock.code = endpoints[0]
-                    // nextBlock.quantities[item].min = value + 1
-                    // blocksToCheck.push({...nextBlock})
+                if (value < quantities[item].max) {
                     let newBlock = JSON.parse(JSON.stringify(nextBlock))
                     newBlock.code = endpoints[0]
                     newBlock.quantities[item].min = value + 1
                     blocksToCheck.push(newBlock)
 
+                    // if we're at the end of workflow and there's a second root, go there
                     if (endpoints.length > 1) {
                         let newBlock = JSON.parse(JSON.stringify(nextBlock))
                         newBlock.code = endpoints[1]
-                        newBlock.quantities[item].max = value - 1
+                        newBlock.quantities[item].max = value 
                         blocksToCheck.push(newBlock)
-                    } else {
-                        if (obj[item].min < value) {
-                            console.log(nextBlock.quantities[item].max)
-                            nextBlock.quantities[item].max = value
-                        }
+                    } 
+                    // otherwise, update the quantities and continue down the workflow
+                    else {
+                        nextBlock.quantities[item].max = value
+                        flow = flow.substr(commaIndexes.shift()+1)
+                        continue
                     }
 
-                    if (endpoints.length > 1) continue workflowLoop
-                    // continue
+                    continue workflowLoop
                 } else {
-                    nextBlock.code = endpoints[1]
-                    nextBlock.quantities[item].min = value - 1
-                    blocksToCheck.push({...nextBlock})
-
                     if (endpoints.length > 1) {
+                        nextBlock.code = endpoints[1]
+                        nextBlock.quantities[item].min = value - 1
+                        blocksToCheck.push({...nextBlock})
+
                         continue workflowLoop
                     } else {
                         flow = flow.substr(commaIndexes.shift()+1)
@@ -111,25 +98,35 @@ export function solve(input) {
                     }
                 }
             } else if (operator === '<') {
-                if (obj[item].min < value) {
+                if (quantities[item].min < value) {
                     let newBlock = JSON.parse(JSON.stringify(nextBlock))
                     newBlock.code = endpoints[0]
                     newBlock.quantities[item].max = value - 1
                     blocksToCheck.push(newBlock)
                     
+                    // if we're at the end of workflow and there's a second root, go there
                     if (endpoints.length > 1) {
                         let newBlock = JSON.parse(JSON.stringify(nextBlock))
                         newBlock.code = endpoints[1]
                         newBlock.quantities[item].min = value
                         blocksToCheck.push(newBlock)
+                    } 
+                    // otherwise, update the quantities and continue down the workflow
+                    else {
+                        if (quantities[item].max > value) {
+                            nextBlock.quantities[item].min = value
+                            flow = flow.substr(commaIndexes.shift()+1)
+                            continue
+                        }
                     }
 
                     continue workflowLoop
                 } else {
-                    nextBlock.code = endpoints[1]
-                    nextBlock.quantities[item].min = nextBlock.quantities[item].min + value - 1
-                    blocksToCheck.push({...nextBlock})
                     if (endpoints.length > 1) {
+                        nextBlock.code = endpoints[1]
+                        nextBlock.quantities[item].min = nextBlock.quantities[item].min + value - 1
+                        blocksToCheck.push({...nextBlock})
+
                         continue workflowLoop
                     } else {
                         flow = flow.substr(commaIndexes.shift()+1)
@@ -138,9 +135,6 @@ export function solve(input) {
                 }
             }
         }
-
-        total += nextBlock === 'A' ? 1 : 0
-
     }
 
     return total
