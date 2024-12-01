@@ -1,12 +1,15 @@
-import { readInput } from '../inputUtils.js'
+import { readInput } from "../../inputUtils.js";
 
 export function solve(input) {
-    const lines = input.split('\n')
-    return lines.map(line => {
-        const nums = line.replace(/\D+/g, '') // leave only numbers
+  console.log(input);
+  const lines = input.split("\n");
+  return lines
+    .map((line) => {
+      const nums = line.replace(/\D+/g, ""); // leave only numbers
 
-        return parseInt('' + nums[0] + nums.at(-1))
-    }).reduce((a,b) => a + b, 0)
+      return parseInt("" + nums[0] + nums.at(-1));
+    })
+    .reduce((a, b) => a + b, 0);
 }
 
-console.log(solve(readInput()))
+console.log(solve(readInput(import.meta.url)));

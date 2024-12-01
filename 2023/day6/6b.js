@@ -1,20 +1,20 @@
-import { readInput } from '../inputUtils.js'
+import { readInput } from "../../inputUtils.js";
 
 export function solve(input) {
-    const lines = input.split('\n')
-    
-    const time = parseInt([...lines[0].matchAll(/\d+/g)].join(""))
-    const distance = parseInt([...lines[1].matchAll(/\d+/g)].join(""))
+  const lines = input.split("\n");
 
-    let waysToWin = []
-    let counter = 0
+  const time = parseInt([...lines[0].matchAll(/\d+/g)].join(""));
+  const distance = parseInt([...lines[1].matchAll(/\d+/g)].join(""));
 
-    while (counter < time) {
-        if (counter * (time - counter) > distance) waysToWin++
-        counter++
-    }
+  let waysToWin = [];
+  let counter = 0;
 
-    return waysToWin
+  while (counter < time) {
+    if (counter * (time - counter) > distance) waysToWin++;
+    counter++;
+  }
+
+  return waysToWin;
 }
 
-console.log(solve(readInput()))
+console.log(solve(readInput(import.meta.url)));

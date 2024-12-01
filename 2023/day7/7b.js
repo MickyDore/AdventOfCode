@@ -1,4 +1,4 @@
-import { readInput } from '../inputUtils.js'
+import { readInput } from "../../inputUtils.js";
 
 // We should compare by Map size first and then the max frequency of the values
 /**
@@ -12,76 +12,81 @@ import { readInput } from '../inputUtils.js'
  * AKQJT      5          1
  */
 
-const cardRankings = 'J23456789TQKA'
+const cardRankings = "J23456789TQKA";
 
 function findHighestFrequency(map) {
-    let highestFreq = 0
-    let select
-    for (const [card, freq] of map) {
-        if (freq > highestFreq) {
-            highestFreq = freq
-            select = card
-        }
+  let highestFreq = 0;
+  let select;
+  for (const [card, freq] of map) {
+    if (freq > highestFreq) {
+      highestFreq = freq;
+      select = card;
     }
+  }
 
-    return select
+  return select;
 }
 
 function splitIntoFrequencies(hand) {
-    let cardMap = new Map()
-    const cards = hand.split("")
+  let cardMap = new Map();
+  const cards = hand.split("");
 
-    let jokers = 0
-    for (let i = 0; i < cards.length; i++) {
-        if (cards[i] === 'J') {
-            jokers++
-            continue
-        }
-        cardMap.set(cards[i], cardMap.has(cards[i]) ? cardMap.get(cards[i]) + 1 : 1)
+  let jokers = 0;
+  for (let i = 0; i < cards.length; i++) {
+    if (cards[i] === "J") {
+      jokers++;
+      continue;
     }
+    cardMap.set(
+      cards[i],
+      cardMap.has(cards[i]) ? cardMap.get(cards[i]) + 1 : 1
+    );
+  }
 
-    const highestFreqCard = findHighestFrequency(cardMap)
-    cardMap.set(highestFreqCard, cardMap.get(highestFreqCard) + jokers)
+  const highestFreqCard = findHighestFrequency(cardMap);
+  cardMap.set(highestFreqCard, cardMap.get(highestFreqCard) + jokers);
 
-    return cardMap
+  return cardMap;
 }
 
 function compareHandMaps(hand1, hand2) {
-    let hand1Map = splitIntoFrequencies(hand1)
-    let hand2Map = splitIntoFrequencies(hand2)
+  let hand1Map = splitIntoFrequencies(hand1);
+  let hand2Map = splitIntoFrequencies(hand2);
 
-    if (hand1Map.size !==  hand2Map.size) {
-        return hand1Map.size > hand2Map.size ? -1 : 1
+  if (hand1Map.size !== hand2Map.size) {
+    return hand1Map.size > hand2Map.size ? -1 : 1;
+  }
+
+  let hand1MaxFrequency = Math.max.apply(Math, [...hand1Map.values()]);
+  let hand2MaxFrequency = Math.max.apply(Math, [...hand2Map.values()]);
+
+  if (hand1MaxFrequency !== hand2MaxFrequency) {
+    return hand1MaxFrequency > hand2MaxFrequency ? 1 : -1;
+  }
+
+  for (let i = 0; i < hand1.length; i++) {
+    const hand1CardRank = cardRankings.indexOf([hand1.charAt(i)]);
+    const hand2CardRank = cardRankings.indexOf([hand2.charAt(i)]);
+    if (hand1CardRank !== hand2CardRank) {
+      return hand1CardRank > hand2CardRank ? 1 : -1;
     }
+  }
 
-    let hand1MaxFrequency = Math.max.apply(Math, [...hand1Map.values()])
-    let hand2MaxFrequency = Math.max.apply(Math, [...hand2Map.values()])
-
-    if (hand1MaxFrequency !== hand2MaxFrequency) {
-        return hand1MaxFrequency > hand2MaxFrequency ? 1 : -1
-    }
-
-    for (let i = 0; i < hand1.length; i++) {
-        const hand1CardRank = cardRankings.indexOf([hand1.charAt(i)])
-        const hand2CardRank = cardRankings.indexOf([hand2.charAt(i)])
-        if (hand1CardRank !== hand2CardRank) {
-            return hand1CardRank > hand2CardRank ? 1 : -1
-        }
-    }
-
-    return 0
+  return 0;
 }
 
 export function solve(input) {
-    const lines = input.split('\n')
-    
-    return lines.sort((a,b) => {
-        let hand = a.split(" ")[0]
-        let nextHand = b.split(" ")[0]
-        return compareHandMaps(hand, nextHand)
-    }).reduce((a,b,i) => {
-        return a + (parseInt(b.split(" ")[1] * (i + 1)))
-    }, 0)
+  const lines = input.split("\n");
+
+  return lines
+    .sort((a, b) => {
+      let hand = a.split(" ")[0];
+      let nextHand = b.split(" ")[0];
+      return compareHandMaps(hand, nextHand);
+    })
+    .reduce((a, b, i) => {
+      return a + parseInt(b.split(" ")[1] * (i + 1));
+    }, 0);
 }
 
-console.log(solve(readInput()))
+console.log(solve(readInput(import.meta.url)));

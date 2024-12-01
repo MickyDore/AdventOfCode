@@ -1,37 +1,38 @@
-import { readInput } from '../inputUtils.js'
+import { readInput } from "../../inputUtils.js";
 
 export function solve(input) {
-    const lines = input.split('\n\n')
-    
-    const instructions = lines[0]
-    const maps = lines[1]
+  const lines = input.split("\n\n");
 
-    /**
-     *     Create map with the form
-     *     {
-     *         AAA: [BBB, CCC],
-     *         ...,
-     *         XXX: [YYY, ZZZ] 
-     *     }
-     */
-    const map = maps.split('\n').reduce((a, v) => {
-        const key = v.split(" =")[0]
-        const options = v.split("= ")[1] 
-        const value = [...options.matchAll(/\w{3}/g)].map(words => words[0])
+  const instructions = lines[0];
+  const maps = lines[1];
 
-        return ({ ...a, [key]: value})
-    }, {}) 
+  /**
+   *     Create map with the form
+   *     {
+   *         AAA: [BBB, CCC],
+   *         ...,
+   *         XXX: [YYY, ZZZ]
+   *     }
+   */
+  const map = maps.split("\n").reduce((a, v) => {
+    const key = v.split(" =")[0];
+    const options = v.split("= ")[1];
+    const value = [...options.matchAll(/\w{3}/g)].map((words) => words[0]);
 
-    let steps = 0
-    let destination = 'AAA';
+    return { ...a, [key]: value };
+  }, {});
 
-    while (destination !== 'ZZZ') {
-        let direction = instructions.charAt(steps % instructions.length) === 'L' ? 0 : 1
-        destination = map[destination][direction]
-        steps++
-    }
+  let steps = 0;
+  let destination = "AAA";
 
-    return steps
+  while (destination !== "ZZZ") {
+    let direction =
+      instructions.charAt(steps % instructions.length) === "L" ? 0 : 1;
+    destination = map[destination][direction];
+    steps++;
+  }
+
+  return steps;
 }
 
-console.log(solve(readInput()))
+console.log(solve(readInput(import.meta.url)));
