@@ -1,7 +1,6 @@
 import { readInput } from "../../inputUtils.js";
 
 export function solve(input) {
-  console.log(input);
   const lines = input.split("\n");
   return lines
     .map((line) => {
