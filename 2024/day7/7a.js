@@ -1,7 +1,6 @@
 import { readInput } from "../../inputUtils.js";
 
 const canGetTarget = (target, values) => {
-  console.log("can i get ", target, "from ", values);
   if (values.length === 1) return target === values[0];
 
   if (
