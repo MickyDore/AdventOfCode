@@ -1,27 +1,19 @@
 import { readInput } from "../../inputUtils.js";
 
-const directionMap = {
-  NORTH: "EAST",
-  EAST: "SOUTH",
-  SOUTH: "WEST",
-  WEST: "NORTH",
-};
-
-const movementMap = {
-  NORTH: [-1, 0],
-  EAST: [0, 1],
-  SOUTH: [1, 0],
-  WEST: [0, -1],
-};
+const directions = [
+  [-1, 0],
+  [0, 1],
+  [1, 0],
+  [0, -1],
+];
 
 let historyMap = new Set();
 
 const nextStepisOutside = (pos, direction, rows, cols) => {
   const [stepX, stepY] = pos;
-  const [x, y] = [
-    stepX + movementMap[direction][0],
-    stepY + movementMap[direction][1],
-  ];
+  const [dx, dy] = directions[direction];
+
+  const [x, y] = [stepX + dx, stepY + dy];
 
   return !(0 <= x && x < rows && 0 <= y && y < cols);
 };
@@ -30,7 +22,7 @@ const countSteps = (start, grid) => {
   let rows = grid.length;
   let cols = grid[0].length;
 
-  let direction = "NORTH";
+  let direction = 0;
 
   let step = start;
 
@@ -38,10 +30,9 @@ const countSteps = (start, grid) => {
 
   while (!nextStepisOutside(step, direction, rows, cols)) {
     const [x, y] = step;
-    const [x2, y2] = [
-      x + movementMap[direction][0],
-      y + movementMap[direction][1],
-    ];
+    const [dx, dy] = directions[direction];
+
+    const [x2, y2] = [x + dx, y + dy];
     const nextChar = grid[x2][y2];
 
     if ([".", "^"].includes(nextChar)) {
@@ -50,7 +41,7 @@ const countSteps = (start, grid) => {
     }
 
     if (nextChar === "#") {
-      direction = directionMap[direction];
+      direction = (direction + 1) % 4;
     }
   }
 };

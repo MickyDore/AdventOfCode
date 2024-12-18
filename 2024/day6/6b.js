@@ -1,76 +1,59 @@
 import { readInput } from "../../inputUtils.js";
 
-const directionMap = {
-  NORTH: "EAST",
-  EAST: "SOUTH",
-  SOUTH: "WEST",
-  WEST: "NORTH",
-};
+const movement = [
+  [-1, 0],
+  [0, 1],
+  [1, 0],
+  [0, -1],
+];
 
-const movementMap = {
-  NORTH: [-1, 0],
-  EAST: [0, 1],
-  SOUTH: [1, 0],
-  WEST: [0, -1],
-};
-
-let historyMap = new Set();
-
-const nextStepIsOutside = (pos, direction, rows, cols) => {
+const nextStepisOutside = (pos, direction, rows, cols) => {
   const [stepX, stepY] = pos;
   const [x, y] = [
-    stepX + movementMap[direction][0],
-    stepY + movementMap[direction][1],
+    stepX + movement[direction][0],
+    stepY + movement[direction][1],
   ];
 
   return !(0 <= x && x < rows && 0 <= y && y < cols);
 };
 
-const checkForLoop = (start, grid) => {
+const findLoop = (start, grid) => {
   let rows = grid.length;
   let cols = grid[0].length;
 
-  let direction = "NORTH";
+  let history = new Set();
 
-  let step = start;
+  let direction = 0; // 0 -> North, 1 -> East, 2 -> South, 3 -> West
 
-  let loopFound = 0;
+  let step = [...start, direction];
+  let loopFound = false;
 
-  while (!nextStepIsOutside(step, direction, rows, cols) && !loopFound) {
-    const [x, y] = step;
-    const [x2, y2] = [
-      x + movementMap[direction][0],
-      y + movementMap[direction][1],
-    ];
+  while (true && !loopFound) {
+    const [x, y, dir] = step;
+
+    if (history.has(JSON.stringify([x, y, dir]))) return 1;
+    history.add(JSON.stringify([x, y, direction]));
+
+    const [x2, y2] = [x + movement[direction][0], y + movement[direction][1]];
+
+    if (nextStepisOutside(step, direction, rows, cols)) return 0;
+
     const nextChar = grid[x2][y2];
 
-    if (historyMap.has([x2, y2, direction].join(","))) {
-      if (x2 !== start[0] && y2 !== start[1] && direction !== "NORTH") {
-        console.log("loop found on", grid, [x2, y2, direction].join(","));
-        loopFound = 1;
-      }
-    }
-
-    if ([".", "^"].includes(nextChar)) {
-      historyMap.add([x, y, direction].join(","));
-      step = [x2, y2];
-    }
-
     if (nextChar === "#") {
-      direction = directionMap[direction];
-    }
+      direction = (direction + 1) % 4;
+      step = [x, y, direction];
+    } else step = [x2, y2, direction];
   }
-
-  return loopFound;
 };
 
 export function solve(input) {
-  const lines = input.split("\n");
+  const lines = input.split("\n").map((line) => line.split(""));
 
   let startPos = [];
 
   lines.forEach((line, index) => {
-    const guardIndex = line.split("").indexOf("^");
+    const guardIndex = line.indexOf("^");
     if (guardIndex > 0) {
       startPos = [index, guardIndex];
     }
@@ -78,23 +61,22 @@ export function solve(input) {
 
   let loops = 0;
 
-  for (let r = 0; r < 2; r++) {
-    for (let c = 0; c < 2; c++) {
-      if (r === startPos[0] && c === startPos[1]) continue;
+  // pretty gross brute force approach, convert each . tile to a # and see if a loop happens
+  for (let r = 0; r < lines.length; r++) {
+    for (let c = 0; c < lines[0].length; c++) {
+      if (
+        (r === startPos[0] && c === startPos[1]) ||
+        ["#", "^"].includes(lines[r][c])
+      )
+        continue;
 
-      let gridClone = [...lines];
-      const line = [...gridClone[r]];
-
-      line[c] = "#";
-      gridClone[r] = line.join("");
-
-      loops += checkForLoop(startPos, gridClone);
-      //   console.log(gridClone);
-      //   console.log(checkForLoop(startPos, gridClone));
+      lines[r][c] = "#";
+      loops += findLoop(startPos, lines);
+      lines[r][c] = ".";
     }
   }
 
-  console.log(loops);
+  return loops;
 }
 
 console.log(solve(readInput(import.meta.url)));
