@@ -29,7 +29,6 @@ const getPlotCost = (grid) => {
       const plants = [[i, j]];
       const letter = grid[i][j];
 
-      console.log("The letter at ", i, j, "is ", letter);
       while (plants.length) {
         const plant = plants.pop();
         const [x, y] = plant;
@@ -47,7 +46,6 @@ const getPlotCost = (grid) => {
             if (grid[newDx][newDy] !== letter) {
               edges++;
             } else {
-              //   console.log(grid[newDx][newDy], "is in bounds");
               plants.push([newDx, newDy]);
             }
           } else {
@@ -56,9 +54,7 @@ const getPlotCost = (grid) => {
         }
       }
 
-      console.log("area is", area, "and perimeter is ", edges);
       totalCost += area * edges;
-      //   return area * edges;
     }
   }
 
@@ -67,8 +63,6 @@ const getPlotCost = (grid) => {
 
 export function solve(input) {
   const grid = input.split("\n").map((line) => line.split(""));
-
-  let total = 0;
 
   return getPlotCost(grid);
 }
